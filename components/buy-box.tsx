@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
-import { useCart, useStoreSelection } from "./providers";
+import { useCart } from "./providers";
 import { useCatalogue } from "./catalogue";
 import { Price, StockBadge } from "./ui";
 import { StoreIcon, TruckIcon } from "./icons";
+import { STOREFRONT_STORE_ID, getStore } from "@/lib/data";
 
 export function BuyBox({ product }: { product: Product }) {
-  const { store } = useStoreSelection();
+  const store = getStore(STOREFRONT_STORE_ID);
   const { add } = useCart();
   const { priceOf, stockOf } = useCatalogue();
 

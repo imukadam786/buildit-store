@@ -14,24 +14,28 @@ export type Store = {
 
 export const STORES: Store[] = [
   {
-    id: "hillcrest",
-    name: "Build It Hillcrest",
-    area: "Hillcrest, KZN",
-    phone: "031 765 3221",
+    id: "strand",
+    name: "Build It Strand",
+    area: "Strand, Western Cape",
+    phone: "021 853 1100",
     whatsapp: "27821234567",
     hours: "Mon–Fri 7:00–17:00 · Sat 7:00–14:00 · Sun 8:00–13:00",
   },
   {
-    id: "kloof",
-    name: "Build It Kloof",
-    area: "Kloof, KZN",
-    phone: "031 764 1100",
+    id: "stellenbosch",
+    name: "Build It Stellenbosch",
+    area: "Stellenbosch, Western Cape",
+    phone: "021 886 4200",
     whatsapp: "27821234568",
     hours: "Mon–Fri 7:00–17:00 · Sat 7:00–14:00 · Sun closed",
   },
 ];
 
-export const DEFAULT_STORE_ID = "hillcrest";
+export const DEFAULT_STORE_ID = "strand";
+
+// The customer storefront is a single store (one branch). It always shows this
+// store's stock, prices and collection details. The admin manages BOTH stores.
+export const STOREFRONT_STORE_ID = "strand";
 
 // --- Categories -------------------------------------------------------------
 export const CATEGORIES: Category[] = [

@@ -42,6 +42,13 @@ body {
   outline-offset: 2px;
 }
 
+/* Print only the pick slip when printing. */
+@media print {
+  body * { visibility: hidden; }
+  #pickslip, #pickslip * { visibility: visible; }
+  #pickslip { position: absolute; left: 0; top: 0; width: 100%; }
+}
+
 /* Skip-link helper. */
 .skip-link {
   position: absolute;

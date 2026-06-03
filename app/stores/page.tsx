@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { STORES } from "@/lib/data";
+import { STOREFRONT_STORE_ID, getStore } from "@/lib/data";
 import { WhatsAppIcon } from "@/components/icons";
 
-export const metadata: Metadata = { title: "Our stores", description: "Find your nearest Build It store, hours and contact details." };
+export const metadata: Metadata = { title: "Our store", description: "Find our Build It store, hours and contact details." };
 
 export default function StoresPage() {
+  const stores = [getStore(STOREFRONT_STORE_ID)];
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="text-2xl font-black text-ink">Our stores</h1>
+      <h1 className="text-2xl font-black text-ink">Our store</h1>
       <p className="mt-2 text-muted">Visit us, collect your online order, or chat to us on WhatsApp.</p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        {STORES.map((s) => (
+        {stores.map((s) => (
           <div key={s.id} className="overflow-hidden rounded-2xl border border-line bg-surface">
             {/* Map placeholder */}
             <div className="flex h-32 items-center justify-center bg-canvas text-sm text-muted" role="img" aria-label={`Map of ${s.name}`}>

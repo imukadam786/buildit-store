@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useCart, useStoreSelection } from "./providers";
+import { useCart } from "./providers";
+import { STOREFRONT_STORE_ID, getStore } from "@/lib/data";
 
 const AREAS = ["Local (within 30km)", "Regional (30–100km)", "Further than 100km", "Not sure yet"];
 
@@ -15,7 +16,7 @@ export function QuoteForm({
   fromCart: boolean;
   seedProduct: { slug: string; name: string } | null;
 }) {
-  const { store } = useStoreSelection();
+  const store = getStore(STOREFRONT_STORE_ID);
   const { lines } = useCart();
 
   // Build the initial item list from the seed product, the cart, or one blank row.

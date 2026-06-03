@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useCart, useStoreSelection } from "@/components/providers";
+import { useCart } from "@/components/providers";
 import { formatRand, vatPortion } from "@/lib/money";
+import { STOREFRONT_STORE_ID, getStore } from "@/lib/data";
 
 const PROVINCES = [
   "Eastern Cape", "Free State", "Gauteng", "KwaZulu-Natal", "Limpopo",
@@ -25,7 +26,7 @@ type PlacedOrder = {
 };
 
 export default function CheckoutPage() {
-  const { store } = useStoreSelection();
+  const store = getStore(STOREFRONT_STORE_ID);
   const { lines, subtotalCents, discountCents, coupon, clear } = useCart();
 
   const [fulfilment, setFulfilment] = useState<Fulfilment>("collect");

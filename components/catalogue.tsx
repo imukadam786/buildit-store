@@ -1,63 +1,122 @@
 "use client";
 
-// Shared, browser-persisted catalogue layer. The storefront reads live prices
-// and per-store stock from here; the admin writes to it. Seeded from the static
-// sample data, so the storefront still server-renders sensibly and the admin's
-// edits show up live (the key demo moment). "Reset demo data" clears overrides.
+// Shared, browser-persisted catalogue. It is the single source of truth for the
+// admin (full product CRUD, per-store stock, special scheduling) AND the live
+// data the storefront reads (prices, stock, homepage headline). Seeded from the
+// static sample data; "Reset demo data" clears it. Nothing is saved server-side.
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { PRODUCTS } from "@/lib/data";
-import type { Product } from "@/lib/types";
+import { PRODUCTS, STORES } from "@/lib/data";
 
-type PriceOverride = { priceCents: number; wasCents: number | null };
-type Overrides = {
-  price: Record<string, PriceOverride>; // key `${slug}:${vid}`
-  stock: Record<string, number>; // key `${slug}:${vid}:${storeId}`
-  hero: { title: string; subtitle: string } | null;
+export type LiveVariant = {
+  id: string;
+  label: string;
+  sku: string;
+  priceCents: number;
+  wasCents: number | null;
+  stockByStore: Record<string, number>;
 };
 
-const EMPTY: Overrides = { price: {}, stock: {}, hero: null };
-const KEY = "bi.catalogue";
+export type Special = { start: string; end: string }; // "" = open-ended
 
-const DEFAULT_HERO = {
+export type LiveProduct = {
+  slug: string;
+  name: string;
+  brand: string;
+  categorySlug: string;
+  summary: string;
+  description: string[];
+  variantLabel: string;
+  variants: LiveVariant[];
+  specs: { label: string; value: string }[];
+  documents: { label: string; href: string }[];
+  bulk: boolean;
+  swatch: string;
+  special: Special | null;
+};
+
+type Hero = { title: string; subtitle: string };
+
+const KEY = "bi.catalogue.v2";
+const DEFAULT_HERO: Hero = {
   title: "Everything to build, fix and improve.",
   subtitle: "Shop tools, building materials, paint and plumbing. Collect at your store or have it delivered to site.",
 };
 
-// Out-of-the-box, the second store carries a bit less stock so per-store numbers
-// differ in the demo without anyone editing them.
-function seedStock(seed: number, storeId: string): number {
-  return storeId === "kloof" ? Math.floor(seed / 2) : seed;
+function seedProducts(): LiveProduct[] {
+  return PRODUCTS.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    brand: p.brand,
+    categorySlug: p.categorySlug,
+    summary: p.summary,
+    description: p.description,
+    variantLabel: p.variantLabel,
+    specs: p.specs,
+    documents: p.documents,
+    bulk: p.bulk,
+    swatch: p.swatch,
+    special: null,
+    variants: p.variants.map((v) => ({
+      id: v.id,
+      label: v.label,
+      sku: v.sku,
+      priceCents: v.priceCents,
+      wasCents: v.wasCents,
+      stockByStore: { strand: v.stock, stellenbosch: Math.floor(v.stock / 2) },
+    })),
+  }));
+}
+
+function today(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+function specialActive(s: Special | null): boolean {
+  if (!s || (!s.start && !s.end)) return true;
+  const t = today();
+  if (s.start && t < s.start) return false;
+  if (s.end && t > s.end) return false;
+  return true;
 }
 
 type CatalogueCtx = {
-  products: Product[];
-  priceOf: (slug: string, vid: string) => PriceOverride;
+  products: LiveProduct[];
+  // storefront reads
+  priceOf: (slug: string, vid: string) => { priceCents: number; wasCents: number | null };
   stockOf: (slug: string, vid: string, storeId: string) => number;
-  minPriceOf: (slug: string) => PriceOverride;
+  minPriceOf: (slug: string) => { priceCents: number; wasCents: number | null };
   inStockAt: (slug: string, storeId: string) => boolean;
+  // admin writes
   setPrice: (slug: string, vid: string, priceCents: number, wasCents: number | null) => void;
   setStock: (slug: string, vid: string, storeId: string, n: number) => void;
-  hero: { title: string; subtitle: string };
-  setHero: (h: { title: string; subtitle: string }) => void;
+  setSchedule: (slug: string, special: Special | null) => void;
+  addProduct: (p: Partial<LiveProduct>) => void;
+  updateProduct: (slug: string, patch: Partial<LiveProduct>) => void;
+  deleteProduct: (slug: string) => void;
+  addVariant: (slug: string) => void;
+  removeVariant: (slug: string, vid: string) => void;
+  importProducts: (rows: LiveProduct[]) => number;
+  hero: Hero;
+  setHero: (h: Hero) => void;
   reset: () => void;
 };
 
 const Ctx = createContext<CatalogueCtx | null>(null);
-
-function variantSeed(slug: string, vid: string) {
-  const p = PRODUCTS.find((x) => x.slug === slug);
-  return p?.variants.find((v) => v.id === vid);
-}
+const SEED_BY_SLUG = new Map(PRODUCTS.map((p) => [p.slug, p]));
 
 export function CatalogueProvider({ children }: { children: React.ReactNode }) {
-  const [ov, setOv] = useState<Overrides>(EMPTY);
+  const [products, setProducts] = useState<LiveProduct[]>(seedProducts);
+  const [hero, setHeroState] = useState<Hero>(DEFAULT_HERO);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setOv({ ...EMPTY, ...JSON.parse(raw) });
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.products) setProducts(parsed.products);
+        if (parsed.hero) setHeroState(parsed.hero);
+      }
     } catch {
       /* ignore */
     }
@@ -65,24 +124,33 @@ export function CatalogueProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(KEY, JSON.stringify(ov));
-  }, [ov, hydrated]);
+    if (hydrated) localStorage.setItem(KEY, JSON.stringify({ products, hero }));
+  }, [products, hero, hydrated]);
 
   const value = useMemo<CatalogueCtx>(() => {
-    const priceOf = (slug: string, vid: string): PriceOverride => {
-      const o = ov.price[`${slug}:${vid}`];
-      if (o) return o;
-      const s = variantSeed(slug, vid);
-      return { priceCents: s?.priceCents ?? 0, wasCents: s?.wasCents ?? null };
+    const find = (slug: string) => products.find((p) => p.slug === slug);
+    const findVar = (slug: string, vid: string) => find(slug)?.variants.find((v) => v.id === vid);
+
+    const priceOf = (slug: string, vid: string) => {
+      const p = find(slug);
+      const v = findVar(slug, vid);
+      if (!v) {
+        const sv = SEED_BY_SLUG.get(slug)?.variants.find((x) => x.id === vid);
+        return { priceCents: sv?.priceCents ?? 0, wasCents: sv?.wasCents ?? null };
+      }
+      return { priceCents: v.priceCents, wasCents: specialActive(p?.special ?? null) ? v.wasCents : null };
     };
-    const stockOf = (slug: string, vid: string, storeId: string): number => {
-      const k = `${slug}:${vid}:${storeId}`;
-      if (k in ov.stock) return ov.stock[k];
-      return seedStock(variantSeed(slug, vid)?.stock ?? 0, storeId);
+    const stockOf = (slug: string, vid: string, storeId: string) => {
+      const v = findVar(slug, vid);
+      if (!v) {
+        const sv = SEED_BY_SLUG.get(slug)?.variants.find((x) => x.id === vid);
+        return storeId === "stellenbosch" ? Math.floor((sv?.stock ?? 0) / 2) : sv?.stock ?? 0;
+      }
+      return v.stockByStore[storeId] ?? 0;
     };
-    const minPriceOf = (slug: string): PriceOverride => {
-      const p = PRODUCTS.find((x) => x.slug === slug);
-      if (!p) return { priceCents: 0, wasCents: null };
+    const minPriceOf = (slug: string) => {
+      const p = find(slug);
+      if (!p || p.variants.length === 0) return priceOf(slug, "");
       let best = priceOf(slug, p.variants[0].id);
       for (const v of p.variants) {
         const cur = priceOf(slug, v.id);
@@ -90,25 +158,58 @@ export function CatalogueProvider({ children }: { children: React.ReactNode }) {
       }
       return best;
     };
-    const inStockAt = (slug: string, storeId: string): boolean => {
-      const p = PRODUCTS.find((x) => x.slug === slug);
-      return !!p && p.variants.some((v) => stockOf(slug, v.id, storeId) > 0);
+    const inStockAt = (slug: string, storeId: string) => {
+      const p = find(slug);
+      return !!p && p.variants.some((v) => (v.stockByStore[storeId] ?? 0) > 0);
     };
-    const setPrice = (slug: string, vid: string, priceCents: number, wasCents: number | null) =>
-      setOv((prev) => ({ ...prev, price: { ...prev.price, [`${slug}:${vid}`]: { priceCents, wasCents } } }));
-    const setStock = (slug: string, vid: string, storeId: string, n: number) =>
-      setOv((prev) => ({ ...prev, stock: { ...prev.stock, [`${slug}:${vid}:${storeId}`]: Math.max(0, n) } }));
-    const setHero = (h: { title: string; subtitle: string }) => setOv((prev) => ({ ...prev, hero: h }));
-    const reset = () => setOv(EMPTY);
 
-    return {
-      products: PRODUCTS,
-      priceOf, stockOf, minPriceOf, inStockAt,
-      setPrice, setStock,
-      hero: ov.hero ?? DEFAULT_HERO,
-      setHero, reset,
+    const mut = (slug: string, fn: (p: LiveProduct) => LiveProduct) =>
+      setProducts((prev) => prev.map((p) => (p.slug === slug ? fn(p) : p)));
+
+    const setPrice = (slug: string, vid: string, priceCents: number, wasCents: number | null) =>
+      mut(slug, (p) => ({ ...p, variants: p.variants.map((v) => (v.id === vid ? { ...v, priceCents, wasCents } : v)) }));
+    const setStock = (slug: string, vid: string, storeId: string, n: number) =>
+      mut(slug, (p) => ({ ...p, variants: p.variants.map((v) => (v.id === vid ? { ...v, stockByStore: { ...v.stockByStore, [storeId]: Math.max(0, n) } } : v)) }));
+    const setSchedule = (slug: string, special: Special | null) => mut(slug, (p) => ({ ...p, special }));
+    const updateProduct = (slug: string, patch: Partial<LiveProduct>) => mut(slug, (p) => ({ ...p, ...patch }));
+    const deleteProduct = (slug: string) => setProducts((prev) => prev.filter((p) => p.slug !== slug));
+    const addVariant = (slug: string) =>
+      mut(slug, (p) => ({
+        ...p,
+        variants: [...p.variants, { id: `v${p.variants.length + 1}-${Date.now().toString(36)}`, label: "New option", sku: "NEW-SKU", priceCents: 0, wasCents: null, stockByStore: Object.fromEntries(STORES.map((s) => [s.id, 0])) }],
+      }));
+    const removeVariant = (slug: string, vid: string) =>
+      mut(slug, (p) => ({ ...p, variants: p.variants.filter((v) => v.id !== vid) }));
+
+    const addProduct = (p: Partial<LiveProduct>) => {
+      const slug = (p.slug || p.name || "new-product").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") + "-" + Date.now().toString(36).slice(-4);
+      const np: LiveProduct = {
+        slug,
+        name: p.name || "New product",
+        brand: p.brand || "—",
+        categorySlug: p.categorySlug || "power-tools",
+        summary: p.summary || "",
+        description: p.description || [],
+        variantLabel: p.variantLabel || "Option",
+        specs: p.specs || [],
+        documents: p.documents || [],
+        bulk: p.bulk ?? false,
+        swatch: p.swatch || "#e2231a",
+        special: null,
+        variants: p.variants || [{ id: "std", label: "Standard", sku: "NEW-SKU", priceCents: 0, wasCents: null, stockByStore: Object.fromEntries(STORES.map((s) => [s.id, 0])) }],
+      };
+      setProducts((prev) => [np, ...prev]);
     };
-  }, [ov]);
+    const importProducts = (rows: LiveProduct[]) => {
+      setProducts((prev) => [...rows, ...prev]);
+      return rows.length;
+    };
+
+    const setHero = (h: Hero) => setHeroState(h);
+    const reset = () => { setProducts(seedProducts()); setHeroState(DEFAULT_HERO); };
+
+    return { products, priceOf, stockOf, minPriceOf, inStockAt, setPrice, setStock, setSchedule, addProduct, updateProduct, deleteProduct, addVariant, removeVariant, importProducts, hero, setHero, reset };
+  }, [products, hero]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -118,3 +219,5 @@ export function useCatalogue(): CatalogueCtx {
   if (!c) throw new Error("useCatalogue must be used within CatalogueProvider");
   return c;
 }
+
+export { specialActive };

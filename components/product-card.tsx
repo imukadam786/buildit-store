@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 import type { Product } from "@/lib/types";
-import { averageRating } from "@/lib/data";
+import { averageRating, STOREFRONT_STORE_ID } from "@/lib/data";
 import { Price, ProductThumb, StarRating } from "./ui";
 import { useCatalogue } from "./catalogue";
-import { useStoreSelection } from "./providers";
 
 export function ProductCard({ product }: { product: Product }) {
   const { minPriceOf, inStockAt } = useCatalogue();
-  const { store } = useStoreSelection();
 
   const from = minPriceOf(product.slug);
-  const available = inStockAt(product.slug, store.id);
+  const available = inStockAt(product.slug, STOREFRONT_STORE_ID);
   const multiVariant = product.variants.length > 1;
 
   return (

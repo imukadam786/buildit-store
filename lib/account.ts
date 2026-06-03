@@ -59,12 +59,12 @@ export const SAMPLE_LISTS: ProjectList[] = [
 
 export type AccountQuote = { ref: string; date: string; summary: string; status: "Awaiting reply" | "Quoted" | "Accepted" };
 export const SAMPLE_QUOTES: AccountQuote[] = [
-  { ref: "Q-3H9X2P", date: "2026-05-28", summary: "PPC Surebuild Cement ×40, Building Sand ×3 m³", status: "Quoted" },
-  { ref: "Q-1B7T5K", date: "2026-05-30", summary: "Imperial Clay Stock Bricks ×3000", status: "Awaiting reply" },
+  { ref: "Q-3H9X2P", date: "2026-05-28", summary: "PPC Surebuild Cement x40, Building Sand x3 cubes", status: "Quoted" },
+  { ref: "Q-1B7T5K", date: "2026-05-30", summary: "Imperial Clay Stock Bricks x3000", status: "Awaiting reply" },
 ];
 
 export type SavedAddress = { label: string; lines: string };
 export const SAMPLE_ADDRESSES: SavedAddress[] = [
-  { label: "Home", lines: "12 Acacia Road, Hillcrest, 3610" },
-  { label: "Site — Kloof", lines: "8 Ridge Drive, Kloof, 3640" },
+  { label: "Home", lines: "12 Beach Road, Strand, 7140" },
+  { label: "Site - Stellenbosch", lines: "8 Dorp Street, Stellenbosch, 7600" },
 ];

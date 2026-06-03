@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CATEGORIES } from "@/lib/data";
+import { CATEGORIES, STOREFRONT_STORE_ID, getStore } from "@/lib/data";
 import { useCart } from "./providers";
-import { StoreSelector } from "./store-selector";
-import { CartIcon, SearchIcon } from "./icons";
+import { CartIcon, SearchIcon, StoreIcon } from "./icons";
+
+const STORE = getStore(STOREFRONT_STORE_ID);
 
 export function Header() {
   const { count } = useCart();
@@ -17,9 +18,11 @@ export function Header() {
       <div className="bg-charcoal text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1.5 text-xs">
           <span className="font-medium">Free delivery on qualifying orders · Collect in-store</span>
-          <div className="hidden sm:block">
-            <StoreSelector tone="dark" />
-          </div>
+          <Link href="/stores" className="hidden items-center gap-1.5 hover:text-white/80 sm:flex">
+            <StoreIcon className="h-4 w-4" />
+            <span className="font-semibold">{STORE.name}</span>
+            <span className="text-white/60">· {STORE.area}</span>
+          </Link>
         </div>
       </div>
 
@@ -106,9 +109,9 @@ export function Header() {
       {menuOpen && (
         <nav className="border-t border-line bg-surface lg:hidden" aria-label="Product categories">
           <div className="px-4 py-2">
-            <div className="mb-2">
-              <StoreSelector />
-            </div>
+            <Link href="/stores" onClick={() => setMenuOpen(false)} className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <StoreIcon className="h-4 w-4 text-brand" /> {STORE.name}
+            </Link>
             {CATEGORIES.map((c) => (
               <Link key={c.slug} href={`/category/${c.slug}`} onClick={() => setMenuOpen(false)} className="block border-b border-line py-2.5 text-sm font-medium text-ink">
                 {c.name}

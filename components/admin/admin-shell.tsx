@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCatalogue } from "@/components/catalogue";
 import { useStoreSelection } from "@/components/providers";
+import { useAdminData } from "@/components/admin/admin-data";
 
 const NAV = [
   { href: "/admin", label: "Dashboard" },
@@ -13,6 +14,7 @@ const NAV = [
   { href: "/admin/quotes", label: "Quotes" },
   { href: "/admin/marketing", label: "Marketing" },
   { href: "/admin/trade", label: "Trade & customers" },
+  { href: "/admin/reports", label: "Reports" },
 ];
 
 const AUTH_KEY = "bi.admin.auth";
@@ -20,6 +22,7 @@ const AUTH_KEY = "bi.admin.auth";
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { reset } = useCatalogue();
+  const { reset: resetData } = useAdminData();
   const { store, stores, setStoreId } = useStoreSelection();
   const [authed, setAuthed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -43,7 +46,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
   function resetDemo() {
     reset();
-    if (typeof window !== "undefined") window.alert("Demo data reset. Storefront prices, stock and homepage are back to defaults.");
+    resetData();
+    if (typeof window !== "undefined") window.alert("Demo data reset. Catalogue, stock, orders, quotes and customers are back to defaults.");
   }
 
   if (!ready) return null;
