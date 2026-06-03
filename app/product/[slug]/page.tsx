@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { PRODUCTS, averageRating, getCategory, getProduct, productsInCategory } from "@/lib/data";
 import { BuyBox } from "@/components/buy-box";
 import { ProductCard } from "@/components/product-card";
-import { ProductThumb, StarRating } from "@/components/ui";
+import { ProductGallery } from "@/components/product-gallery";
+import { StarRating } from "@/components/ui";
 
 type Params = { slug: string };
 
@@ -46,7 +47,7 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
       <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
         {/* Gallery + details */}
         <div>
-          <ProductThumb swatch={product.swatch} label={product.name} className="aspect-square w-full rounded-2xl border border-line" />
+          <ProductGallery slug={product.slug} swatch={product.swatch} label={product.name} />
 
           <div className="mt-8">
             <h2 className="text-lg font-bold text-ink">Description</h2>

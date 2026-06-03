@@ -31,6 +31,7 @@ export type LiveProduct = {
   specs: { label: string; value: string }[];
   documents: { label: string; href: string }[];
   bulk: boolean;
+  image: string;
   swatch: string;
   special: Special | null;
 };
@@ -55,6 +56,7 @@ function seedProducts(): LiveProduct[] {
     specs: p.specs,
     documents: p.documents,
     bulk: p.bulk,
+    image: p.image ?? "",
     swatch: p.swatch,
     special: null,
     variants: p.variants.map((v) => ({
@@ -86,6 +88,7 @@ type CatalogueCtx = {
   stockOf: (slug: string, vid: string, storeId: string) => number;
   minPriceOf: (slug: string) => { priceCents: number; wasCents: number | null };
   inStockAt: (slug: string, storeId: string) => boolean;
+  imageOf: (slug: string) => string;
   // admin writes
   setPrice: (slug: string, vid: string, priceCents: number, wasCents: number | null) => void;
   setStock: (slug: string, vid: string, storeId: string, n: number) => void;
@@ -162,6 +165,7 @@ export function CatalogueProvider({ children }: { children: React.ReactNode }) {
       const p = find(slug);
       return !!p && p.variants.some((v) => (v.stockByStore[storeId] ?? 0) > 0);
     };
+    const imageOf = (slug: string) => find(slug)?.image ?? SEED_BY_SLUG.get(slug)?.image ?? "";
 
     const mut = (slug: string, fn: (p: LiveProduct) => LiveProduct) =>
       setProducts((prev) => prev.map((p) => (p.slug === slug ? fn(p) : p)));
@@ -194,6 +198,7 @@ export function CatalogueProvider({ children }: { children: React.ReactNode }) {
         specs: p.specs || [],
         documents: p.documents || [],
         bulk: p.bulk ?? false,
+        image: p.image || "",
         swatch: p.swatch || "#e2231a",
         special: null,
         variants: p.variants || [{ id: "std", label: "Standard", sku: "NEW-SKU", priceCents: 0, wasCents: null, stockByStore: Object.fromEntries(STORES.map((s) => [s.id, 0])) }],
@@ -208,7 +213,7 @@ export function CatalogueProvider({ children }: { children: React.ReactNode }) {
     const setHero = (h: Hero) => setHeroState(h);
     const reset = () => { setProducts(seedProducts()); setHeroState(DEFAULT_HERO); };
 
-    return { products, priceOf, stockOf, minPriceOf, inStockAt, setPrice, setStock, setSchedule, addProduct, updateProduct, deleteProduct, addVariant, removeVariant, importProducts, hero, setHero, reset };
+    return { products, priceOf, stockOf, minPriceOf, inStockAt, imageOf, setPrice, setStock, setSchedule, addProduct, updateProduct, deleteProduct, addVariant, removeVariant, importProducts, hero, setHero, reset };
   }, [products, hero]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

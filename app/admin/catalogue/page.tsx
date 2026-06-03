@@ -45,6 +45,25 @@ export default function AdminCatalogue() {
     URL.revokeObjectURL(url);
   }
 
+  function uploadImage(slug: string, file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        const max = 700;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) { ctx.drawImage(img, 0, 0, w, h); updateProduct(slug, { image: canvas.toDataURL("image/jpeg", 0.82) }); }
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
   function importCsv(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
@@ -58,7 +77,7 @@ export default function AdminCatalogue() {
         rows.push({
           slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Math.random().toString(36).slice(2, 6),
           name, brand: brand || "—", categorySlug: CATEGORIES.some((c) => c.slug === category) ? category : "power-tools",
-          summary: "", description: [], variantLabel: "Option", specs: [], documents: [], bulk: false, swatch: "#e2231a", special: null,
+          summary: "", description: [], variantLabel: "Option", specs: [], documents: [], bulk: false, image: "", swatch: "#e2231a", special: null,
           variants: [{ id: "std", label: "Standard", sku: "IMP-" + Math.random().toString(36).slice(2, 6).toUpperCase(), priceCents, wasCents: null, stockByStore: { strand: stk, stellenbosch: stk } }],
         });
       }
@@ -191,7 +210,17 @@ export default function AdminCatalogue() {
                     <label className="block text-sm"><span className="mb-1 block font-medium text-muted">Brand</span><input value={p.brand} onChange={(e) => updateProduct(p.slug, { brand: e.target.value })} className={text} /></label>
                     <label className="block text-sm"><span className="mb-1 block font-medium text-muted">Category</span>
                       <select value={p.categorySlug} onChange={(e) => updateProduct(p.slug, { categorySlug: e.target.value })} className={text}>{CATEGORIES.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}</select></label>
-                    <label className="block text-sm"><span className="mb-1 block font-medium text-muted">Image colour (placeholder)</span>
+                    <label className="block text-sm"><span className="mb-1 block font-medium text-muted">Image URL</span>
+                      <input value={p.image ?? ""} onChange={(e) => updateProduct(p.slug, { image: e.target.value })} placeholder="https://… or upload below" className={text} /></label>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {p.image && <img src={p.image} alt="" className="h-16 w-16 rounded-lg border border-line object-cover" />}
+                    <label className="text-sm">
+                      <span className="mb-1 block font-medium text-muted">Upload photo</span>
+                      <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(p.slug, f); e.target.value = ""; }} className="text-xs" />
+                    </label>
+                    {p.image && <button onClick={() => updateProduct(p.slug, { image: "" })} className="text-xs font-medium text-muted hover:text-brand">Remove image</button>}
+                    <label className="text-sm"><span className="mb-1 block font-medium text-muted">Fallback colour</span>
                       <input type="color" value={p.swatch} onChange={(e) => updateProduct(p.slug, { swatch: e.target.value })} className="h-9 w-16 rounded border border-line" /></label>
                   </div>
                   <label className="block text-sm"><span className="mb-1 block font-medium text-muted">Summary</span><input value={p.summary} onChange={(e) => updateProduct(p.slug, { summary: e.target.value })} className={text} /></label>

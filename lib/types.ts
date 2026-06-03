@@ -51,6 +51,8 @@ export type Product = {
   /** Bulk/heavy goods are quote-first rather than buy-now. */
   bulk: boolean;
   reviews: Review[];
-  /** Placeholder swatch colour until real product imagery is wired. */
+  /** Real product image URL (or uploaded data URL). Falls back to the swatch. */
+  image?: string;
+  /** Placeholder swatch colour used when there's no image. */
   swatch: string;
 };

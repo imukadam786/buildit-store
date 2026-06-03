@@ -64,12 +64,25 @@ export function StockBadge({ stock, storeName }: { stock: number; storeName?: st
 export function ProductThumb({
   swatch,
   label,
+  src,
   className = "",
 }: {
   swatch: string;
   label: string;
+  src?: string;
   className?: string;
 }) {
+  if (src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={src}
+        alt={label}
+        loading="lazy"
+        className={`bg-canvas object-cover ${className}`}
+      />
+    );
+  }
   const initials = label
     .split(" ")
     .slice(0, 2)

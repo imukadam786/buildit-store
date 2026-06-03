@@ -53,6 +53,7 @@ export const CATEGORIES: Category[] = [
 export const PRODUCTS: Product[] = [
   {
     slug: "ingco-impact-drill-20v",
+    image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=800&q=70",
     name: "Ingco 20V Cordless Impact Drill Kit",
     brand: "Ingco",
     categorySlug: "power-tools",
@@ -83,6 +84,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "bosch-table-saw-gts-254",
+    image: "https://images.unsplash.com/photo-1560846389-956694677531?auto=format&fit=crop&w=800&q=70",
     name: "Bosch GTS 254 Table Saw Professional",
     brand: "Bosch",
     categorySlug: "power-tools",
@@ -106,6 +108,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "ppc-cement-42-5n",
+    image: "https://images.unsplash.com/photo-1575493438282-4e0fb32d1bdd?auto=format&fit=crop&w=800&q=70",
     name: "PPC Surebuild Cement 42,5N",
     brand: "PPC",
     categorySlug: "building-materials",
@@ -132,6 +135,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "clay-bricks-imperial",
+    image: "https://images.unsplash.com/photo-1592795694703-24f1814cfb0a?auto=format&fit=crop&w=800&q=70",
     name: "Imperial Clay Stock Bricks",
     brand: "Corobrik",
     categorySlug: "building-materials",
@@ -155,6 +159,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "dulux-weatherguard-20l",
+    image: "https://images.unsplash.com/photo-1585676737728-432f58d5fdba?auto=format&fit=crop&w=800&q=70",
     name: "Dulux Weatherguard Exterior Paint",
     brand: "Dulux",
     categorySlug: "paint",
@@ -182,6 +187,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "kwikot-geyser-150l",
+    image: "https://images.unsplash.com/photo-1594233078955-e1f73a02ebb2?auto=format&fit=crop&w=800&q=70",
     name: "Kwikot 150L Electric Geyser",
     brand: "Kwikot",
     categorySlug: "plumbing",
@@ -208,6 +214,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "cobra-basin-mixer",
+    image: "https://images.unsplash.com/photo-1610178167104-488495443e01?auto=format&fit=crop&w=800&q=70",
     name: "Cobra Amazon Basin Mixer — Matt Black",
     brand: "Cobra",
     categorySlug: "bathroom",
@@ -234,6 +241,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "speedheat-shower-head",
+    image: "https://images.unsplash.com/photo-1652662700928-5a4685e87d64?auto=format&fit=crop&w=800&q=70",
     name: "Speedheat Instant Hot Water Showerhead",
     brand: "Speedheat",
     categorySlug: "bathroom",
@@ -259,6 +267,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "radiant-bar-heater-1200w",
+    image: "https://images.unsplash.com/photo-1611914862136-04ddcb01abfd?auto=format&fit=crop&w=800&q=70",
     name: "Radiant 3 Bar Quartz Electric Heater 1200W",
     brand: "Radiant",
     categorySlug: "garden",
@@ -281,6 +290,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "weber-braai-kettle-57",
+    image: "https://images.unsplash.com/photo-1534177616072-ef7dc120449d?auto=format&fit=crop&w=800&q=70",
     name: "Weber Master-Touch 57cm Charcoal Braai",
     brand: "Weber",
     categorySlug: "garden",
@@ -307,6 +317,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "builders-sand-cube",
+    image: "https://images.unsplash.com/photo-1724388478226-1ee085173dda?auto=format&fit=crop&w=800&q=70",
     name: "Building Sand — Per m³",
     brand: "Local",
     categorySlug: "building-materials",
@@ -329,6 +340,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     slug: "dewalt-angle-grinder-115",
+    image: "https://images.unsplash.com/photo-1598302936625-6075fbd98dd7?auto=format&fit=crop&w=800&q=70",
     name: "DeWalt 115mm Angle Grinder 750W",
     brand: "DeWalt",
     categorySlug: "power-tools",

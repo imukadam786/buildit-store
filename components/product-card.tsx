@@ -7,7 +7,7 @@ import { Price, ProductThumb, StarRating } from "./ui";
 import { useCatalogue } from "./catalogue";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { minPriceOf, inStockAt } = useCatalogue();
+  const { minPriceOf, inStockAt, imageOf } = useCatalogue();
 
   const from = minPriceOf(product.slug);
   const available = inStockAt(product.slug, STOREFRONT_STORE_ID);
@@ -19,7 +19,7 @@ export function ProductCard({ product }: { product: Product }) {
       className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface transition hover:border-brand/40 hover:shadow-md"
     >
       <div className="relative">
-        <ProductThumb swatch={product.swatch} label={product.name} className="aspect-square w-full" />
+        <ProductThumb swatch={product.swatch} src={imageOf(product.slug)} label={product.name} className="aspect-square w-full" />
         {!available && (
           <span className="absolute left-2 top-2 rounded bg-charcoal/80 px-2 py-0.5 text-xs font-semibold text-white">
             Out of stock
