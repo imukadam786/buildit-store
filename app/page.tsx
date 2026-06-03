@@ -3,7 +3,7 @@ import { CATEGORIES, PRODUCTS } from "@/lib/data";
 import { CategoryIcon } from "@/components/icons";
 import { ProductCard } from "@/components/product-card";
 import { TrustBar } from "@/components/trust-bar";
-import { HomeHeroText } from "@/components/home-hero";
+import { HeroCarousel } from "@/components/hero-carousel";
 
 export default function HomePage() {
   const onSpecial = PRODUCTS.filter((p) => p.variants.some((v) => v.wasCents)).slice(0, 4);
@@ -11,32 +11,8 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="bg-brand">
-        <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 py-10 sm:py-14 lg:grid-cols-2">
-          <div className="text-white">
-            <HomeHeroText />
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/category/power-tools" className="rounded-lg bg-white px-5 py-3 text-sm font-bold text-brand hover:bg-white/90">
-                Shop power tools
-              </Link>
-              <Link href="/calculators" className="rounded-lg border border-white/70 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">
-                Material calculators
-              </Link>
-            </div>
-          </div>
-          <div className="hidden justify-end lg:flex">
-            <div className="grid grid-cols-2 gap-3">
-              {CATEGORIES.slice(0, 4).map((c) => (
-                <Link key={c.slug} href={`/category/${c.slug}`} className="flex flex-col items-center gap-2 rounded-xl bg-white/10 p-5 text-white backdrop-blur transition hover:bg-white/20">
-                  <CategoryIcon name={c.icon} className="h-9 w-9" />
-                  <span className="text-sm font-semibold">{c.name}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero carousel */}
+      <HeroCarousel />
 
       <TrustBar />
 
