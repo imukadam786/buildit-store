@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+  Build It storefront design tokens.
+  Brand is Build It red. We deliberately keep body text dark-on-light and use a
+  dark charcoal footer (not red-on-red) to fix the contrast problem on the
+  reference sites. No auto dark mode — a retail storefront should look the same
+  for every shopper.
+*/
+@theme {
+  --color-brand: #e2231a;
+  --color-brand-dark: #b51812;
+  --color-brand-tint: #fdecec;
+  --color-accent: #ffcc00;
+
+  --color-ink: #1a1a1a;
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
+  --color-surface: #ffffff;
+  --color-canvas: #f5f6f7;
+  --color-charcoal: #1f2329;
+
+  --color-success: #138a36;
+  --color-warning: #b45309;
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Visible focus ring for keyboard users (accessibility baseline). */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* Skip-link helper. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+}
